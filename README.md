@@ -1,419 +1,502 @@
-# Autonomous SOC-Based Communication-Free Microgrid with P2P Trading and Bidirectional V2G Integration
+Hybrid Autonomous SOC-Based Microgrid with P2P Trading and Bidirectional V2G Integration
 
-> Research Project \| Hybrid Microgrid \| Decentralized Energy
-> Management \| P2P Energy Sharing \| V2G
+Hybrid Microgrid | SOC-Based Energy Management | P2P EnergySharing | V2G | Autonomous Switching
 
-## Overview
+Overview
 
-This project explores an autonomous hybrid microgrid architecture
-designed to coordinate distributed energy resources without making
-communication infrastructure a mandatory dependency for basic energy
-sharing.
+This project focuses on the development of an autonomous hybridmicrogrid that combines renewable energy generation, battery energystorage, local SOC-based decision making, peer-to-peer (P2P) energysharing, and bidirectional Vehicle-to-Grid (V2G) integration.
 
-The proposed system combines:
+The system is designed around multiple distributed energy nodes that canoperate as producers, consumers, or both. Each node can generate energy,store excess energy in a battery, supply its local load, or participatein energy exchange with other nodes.
 
--   Solar PV and wind generation
--   Battery energy storage with SOC-based management
--   Five prosumer nodes and five consumer nodes
--   Local BMS and PLC-based operating decisions
--   Inverter-based droop coordination
--   Communication-independent P2P energy sharing
--   Bidirectional Vehicle-to-Grid (V2G)
--   Critical-load protection for applications such as hospitals
--   Grid-connected and islanded operating scenarios
+The main objective is to develop an energy-management architecture inwhich distributed nodes can make local decisions based on theiravailable generation, load demand, and battery State of Charge (SOC).
 
-The central idea is:
+Project Objective
 
-> **Instead of requiring a central controller to command every energy
-> transaction, the system aims to allow connected nodes to respond
-> autonomously to the electrical operating condition of the common
-> bus.**
+The project aims to develop and study a hybrid microgrid capable of:
 
-Communication may still be used for monitoring, logging and telemetry,
-but the intended fundamental energy-sharing mechanism should not depend
-on it.
+Managing solar and wind energy
 
-## Problem Statement
+Storing surplus energy in batteries
 
-Conventional microgrid architectures can coordinate solar, storage, EVs
-and loads using supervisory controllers, SCADA systems and communication
-networks. These approaches provide extensive monitoring and
-optimization, but can also introduce additional infrastructure,
-complexity and communication dependencies.
+Monitoring battery State of Charge (SOC)
 
-This project investigates:
+Automatically switching between available energy sources
 
-> **Can distributed energy resources share power autonomously through
-> local decisions and the electrical network itself, while reducing
-> dependence on centralized communication for fundamental energy
-> coordination?**
+Supplying local and neighbouring loads
 
-The project is particularly targeted toward MSME-scale facilities, rural
-and remote applications, educational campuses, healthcare facilities and
-other sites where resilient local operation is valuable.
+Enabling peer-to-peer energy exchange
 
-## Proposed Architecture
+Integrating bidirectional V2G
 
-``` text
-                    GRID
-                      |
+Maintaining battery operating limits
+
+Supporting grid-connected and islanded operating conditions
+
+Reducing dependence on a single centralized energy source
+
+The long-term goal is to demonstrate how distributed energy resourcescan cooperate through local control and electrical coupling.
+
+System Concept
+
+The proposed architecture consists of multiple prosumer and consumernodes connected through a common electrical network.
+
+                    SOLAR PV
+                       |
+                    MPPT
+                       |
+                       v
+                  BATTERY + BMS
+                       |
+                       v
+                LOCAL CONTROLLER
+                       |
+                       v
+                   INVERTER
+                       |
+                       v
               COMMON MICROGRID BUS
+                /      |                      /       |                      v        v         v
+        Prosumer    Consumer    EV / V2G
+           Node       Loads       System
+              \        |         /
+               \       |        /
+                +------|-------+
+                       |
+                     GRID
+
+A prosumer can generate and consume energy, while a consumer primarilyrepresents a load. A prosumer with surplus generation can make energyavailable to other nodes through the common electrical network.
+
+SOC-Based Energy Management
+
+Battery State of Charge is one of the primary decision variables in thesystem.
+
+The controller continuously evaluates:
+
+Battery SOC
+
+Renewable generation
+
+Load demand
+
+Available battery energy
+
+Charging/discharging condition
+
+Grid availability
+
+A simplified operating strategy is:
+
+                    Start
                       |
-      +---------------+---------------+
-      |               |               |
-  Prosumer 1      Prosumer 2      Prosumer 3
- PV+Wind+BESS    PV+Wind+BESS    PV+Wind+BESS
-      |               |               |
-      +---------------+---------------+
+              Read local inputs
                       |
           +-----------+-----------+
-          |           |           |
-      Consumers    EVCS/V2G   Critical Load
-       C1...C5                 Hospital
+          |                       |
+       SOC high                 SOC low
+          |                       |
+     Limit charging          Support load /
+          |                  discharge if allowed
+          +-----------+-----------+
                       |
-                 Prosumer 4/5
-```
+              Check generation
+                      |
+          +-----------+-----------+
+          |                       |
+     Generation > Load       Generation < Load
+          |                       |
+      Store / Share           Battery / Grid
+          |                       |
+          +-----------+-----------+
+                      |
+                 Repeat cycle
 
-Each prosumer node is intended to contain:
+The exact control thresholds can be configured according to the batteryand operating requirements.
 
-``` text
-PV / Wind
-    |
-    v
-MPPT / Power Conversion
-    |
-    v
+Autonomous Switching Prototype
+
+A working hardware prototype has already been developed using:
+
+Arduino
+
+Relay module
+
 Battery
-    |
-    v
-BMS
-    +---------> Local PLC
+
+Electrical load
+
+Power-source inputs
+
+Automatic switching logic
+
+The prototype automatically changes the power path according to theprogrammed operating conditions.
+
+Prototype Concept
+
+             Battery / Source
                     |
                     v
-                Contactors
-    |
-    v
-Inverter
-    |
-    v
-Droop / Local Power Control
-    |
-    v
-Common Electrical Bus
-```
+                 Relay
+                    |
+          +---------+---------+
+          |                   |
+          v                   v
+       Load 1              Load 2
 
-## Role of Each Control Layer
+The Arduino monitors the defined input conditions and controls the relayto automatically select the appropriate supply path.
 
-### BMS
+This prototype provides the hardware-level foundation for the largerautonomous energy-management architecture.
 
-Provides battery-related information such as:
+Peer-to-Peer Energy Sharing
 
--   State of Charge (SOC)
--   Battery availability
--   Protection status
--   Fault/alarm conditions
--   Charging/discharging limits
+The project extends local energy management toward P2P energy sharing.
 
-### PLC
+For example:
 
-The PLC is the local supervisory controller. It is not intended to
-continuously control inverter switching.
+     Prosumer 1                         Consumer 1
+   Surplus Energy                       Energy Demand
+         |                                   |
+         v                                   v
+     Local Node                         Local Node
+         |                                   |
+         +------------- COMMON BUS ----------+
+                         |
+                  Energy Transfer
 
-Its role is to:
+If one node has surplus renewable energy while another node has adeficit, the architecture allows the available energy to be directedthrough the shared electrical network.
 
--   Read local BMS status
--   Apply SOC and protection rules
--   Determine the local operating state
--   Control contactors
--   Enable/disable inverter operation
--   Handle local startup, shutdown and isolation sequences
-
-The proposed industrial implementation identifies a Siemens S7-1200 PLC.
+The objective is to move from a purely centralized energy-routingapproach toward distributed node-level decision making.
 
-### Contactors
+Droop-Based Coordination
 
-Contactors provide the physical connection/isolation mechanism.
+The project investigates inverter-based droop coordination as amechanism for autonomous power sharing.
 
-``` text
-BMS -> PLC -> Contactor -> Node connected / isolated
-```
+The basic concept is:
 
-### Inverter
+          Inverter 1
+              |
+            Droop
+              |
+              +--------+
+                       |
+                   COMMON BUS
+                       |
+              +--------+
+              |
+            Droop
+              |
+          Inverter 2
 
-The inverter interfaces stored energy with the microgrid and implements
-local power-control behaviour.
+Each connected inverter responds according to its local controlcharacteristic.
 
-### Droop Control
+Instead of requiring a digital command for every power transaction, theelectrical operating condition of the common bus provides the physicalcoupling between the participating nodes.
 
-Droop control is intended to operate at the inverter/control layer.
-Connected inverters respond to the electrical operating condition of the
-common bus according to their local control characteristics.
+The droop-control architecture is a development objective of the projectand is being investigated through simulation and subsequent hardwarevalidation.
 
-The electrical network therefore becomes the physical coupling mechanism
-for power sharing.
+Bidirectional V2G
 
-## Communication-Free Energy Sharing
+Electric vehicles are treated as additional distributed energy-storageresources.
 
-"Communication-free" refers specifically to the intended fundamental
-energy-sharing mechanism.
+A bidirectional charger can support two-way energy flow:
 
-It does not mean the complete system can never contain communication.
-Communication may still be used for:
+                 EV
+                  |
+          Bidirectional
+             Converter
+                  |
+                  v
+            Microgrid Bus
 
--   Monitoring
--   Data logging
--   Telemetry
--   Diagnostics
--   Remote dashboards
--   Higher-level optimization
+        Grid/Microgrid ---> EV
+        EV --------------> Grid/Microgrid
 
-The objective is that loss of supervisory communication should not
-necessarily prevent fundamental local energy-sharing and protection
-functions.
+Charging Mode
 
-## Existing Simulation Work
+The EV absorbs energy from the microgrid when charging is required.
 
-A detailed MATLAB/Simulink/Simscape model has been developed as the
-electrical-system foundation.
+V2G Mode
 
-The model includes:
+The EV can supply stored energy back to the microgrid when the operatingconditions permit.
 
--   PV generation
--   Wind generation
--   Battery storage
--   Power converters
--   PWM generation
--   Three-phase electrical systems
--   PLL-based synchronization
--   Loads
--   Grid connection
--   Breakers
--   Three-phase fault modelling
--   Consumer-side energy-management logic
--   EVCS/V2G infrastructure
--   SOC-based control logic
--   Measurement and data logging
+This provides additional flexibility for energy management andpeak-demand support.
 
-The existing model contains explicit rule-based control and
-energy-routing logic. The proposed MSME development takes this
-foundation further by redesigning the coordination layer toward local
-BMS/PLC decisions, inverter droop coordination and common-bus-based
-power sharing.
+Simulation Platform
 
-## Embedded Prototype
+The project includes a detailed MATLAB/Simulink/Simscape model of thehybrid microgrid.
 
-A reduced-scale embedded prototype has been explored using:
+The simulation work includes:
 
--   ESP32
--   INA219 sensing
--   Relay/contactors
--   FreeRTOS-based task scheduling
--   MQTT/Wi-Fi telemetry
+Solar PV generation
 
-The embedded prototype is intended to validate local embedded-control
-concepts before moving toward industrial PLC/BMS implementation.
+Wind generation
 
-## V2G Integration
+Battery energy storage
 
-Bidirectional Vehicle-to-Grid operation is included as an additional
-distributed energy-storage resource.
+DC/DC power conversion
 
-``` text
-        EV
-         |
-   +-----+-----+
-   |     |     |
-Charge  Idle  Discharge
-Absorb         Supply
-Power          Power
-```
+Inverter systems
 
-V2G provides additional flexibility when EVs are parked and available
-for controlled charging/discharging.
+PWM control
 
-## Critical Load Protection
+PLL synchronization
 
-Critical loads such as hospital loads are treated separately from
-ordinary consumers. The intended design includes an independent
-protection path so that critical-load protection is not solely dependent
-on software or supervisory communication.
+Three-phase loads
 
-The current simulation represents the hospital load and
-protection-related infrastructure; the dedicated industrial hardware
-implementation is part of the proposed development work.
+Grid interaction
 
-## Technology Stack
+Breakers
 
-### Simulation
+Fault modelling
 
--   MATLAB
--   Simulink
--   Simscape Electrical
+SOC-based energy management
 
-### Embedded Prototype
+Consumer-side energy management
 
--   ESP32
--   FreeRTOS
--   INA219
--   Relay/contactors
--   MQTT/Wi-Fi telemetry
+EVCS/V2G infrastructure
 
-### Proposed Industrial Hardware
+Measurement and data logging
 
--   Siemens S7-1200 PLC
--   Industrial BMS
--   LiFePO4 battery
--   Victron SmartSolar MPPT
--   Victron MultiPlus inverter
--   Schneider contactors
+The model provides the simulation foundation for studying the behaviourof multiple distributed energy nodes before expanding the hardwareimplementation.
 
-### Control
+Hardware and Simulation Relationship
 
--   SOC-based energy management
--   MPPT
--   Inverter control
--   Droop-based coordination
--   P2P energy sharing
--   V2G
--   Protection and isolation
--   Islanding/reconnection
+The project is being developed progressively:
 
-## Development Roadmap
+        SIMULATION
+            |
+            v
+   Control Strategy
+            |
+            v
+    Arduino Prototype
+            |
+            v
+ Automatic Switching
+            |
+            v
+   Multi-Node Prototype
+            |
+            v
+  Advanced P2P + V2G
+            |
+            v
+ Autonomous Hybrid
+ Microgrid Demonstrator
 
-### Stage 1 --- Existing Foundation
+The existing Arduino-relay-battery-load prototype demonstrates theautomatic switching portion of the system.
 
-Validate the detailed five-node hybrid microgrid simulation.
+The larger research direction is to extend this foundation towardmulti-node SOC-based energy management, P2P energy sharing, inverterdroop coordination, and V2G.
 
-### Stage 2 --- Decentralized Control
+Main Components
 
-Replace explicit energy-routing decisions with local node-level control
-and inverter-based droop coordination.
+Renewable Energy
 
-### Stage 3 --- Three-Node Prototype
+Solar PV
 
-Validate:
+Wind generation
 
--   Bus-voltage stability
--   Power-sharing behaviour
--   SOC response
--   Response time
--   Protection behaviour
+MPPT controller
 
-### Stage 4 --- Five-Node Prototype
+Energy Storage
 
-Expand the validated architecture to five prosumer/consumer nodes.
+Battery
 
-### Stage 5 --- V2G Integration
+Battery Management System (BMS)
 
-Add bidirectional EV charging/discharging.
+SOC monitoring
 
-### Stage 6 --- Critical Load Protection
+Control
 
-Integrate the dedicated critical-load protection mechanism.
+Arduino prototype controller
 
-### Stage 7 --- Industrial Implementation
+Local control logic
 
-Migrate the validated architecture toward:
+PLC-based industrial control as a future implementation
 
-**BMS -\> Siemens S7-1200 PLC -\> Contactors -\> Industrial inverter**
+Inverter control
 
-## Key Performance Indicators
+Droop control
 
-  KPI                     Purpose
-  ----------------------- ---------------------------------------------
-  Bus Voltage Deviation   Evaluate electrical stability
-  Power-Sharing Error     Measure effectiveness of power sharing
-  Response Time           Measure reaction to load/generation changes
-  Battery SOC             Verify operating limits
-  Renewable Utilization   Evaluate renewable-energy use
-  Energy Exchanged        Quantify P2P energy transfer
-  Protection Response     Verify safe isolation
+Switching and Protection
 
-## Target Applications
+Relay modules
 
--   MSME manufacturing units
--   Agro-industrial facilities
--   Rural healthcare centres
--   Educational campuses
--   Commercial buildings
--   Remote installations
--   Distributed renewable-energy clusters
+Contactors
 
-## Project Positioning
+Circuit protection
 
-This project does not claim that individual technologies such as
-batteries, droop control, PLCs, V2G or SOC-based management are new.
+Fault detection
 
-The research focus is the system-level integration of these established
-technologies into an autonomous, MSME-oriented architecture.
+V2G
 
-The intended contribution is to investigate whether:
+Bidirectional power converter
 
-> **A distributed microgrid can maintain basic energy-sharing and local
-> protection functions through local decisions and electrical coupling,
-> without making centralized communication a mandatory dependency for
-> every energy transaction.**
+EV battery
 
-## Repository Structure
+EV charging/discharging control
 
-``` text
+Simulation
+
+MATLAB
+
+Simulink
+
+Simscape Electrical
+
+Key Operating Scenarios
+
+Scenario 1 --- Renewable Surplus
+
+Renewable Generation > Load
+          |
+          +--> Local Load
+          |
+          +--> Battery Charging
+          |
+          +--> P2P Energy Sharing
+
+Scenario 2 --- Renewable Deficit
+
+Renewable Generation < Load
+          |
+          +--> Battery Discharge
+          |
+          +--> P2P Energy Import
+          |
+          +--> Grid Support
+
+Scenario 3 --- Low Battery SOC
+
+SOC below operating limit
+          |
+          v
+Limit / Stop Battery Discharge
+          |
+          +--> Grid Support
+          |
+          +--> Available P2P Support
+
+Scenario 4 --- EV Available
+
+EV Connected
+     |
+     +--> Charge
+     |
+     +--> Standby
+     |
+     +--> V2G Discharge
+
+Key Performance Indicators
+
+The project can be evaluated using:
+
+Bus voltage stability
+
+Power-sharing accuracy
+
+Response time
+
+Battery SOC behaviour
+
+Renewable-energy utilization
+
+Energy exchanged between nodes
+
+Automatic switching response
+
+Battery protection response
+
+V2G charging/discharging performance
+
+Grid dependency
+
+Current Project Status
+
+Completed
+
+Five-node hybrid microgrid simulation foundation
+
+PV and wind generation modelling
+
+Battery and SOC-based energy-management logic
+
+Consumer/load-side modelling
+
+EVCS/V2G simulation infrastructure
+
+Fault and protection modelling
+
+Arduino-based automatic switching prototype
+
+Relay-controlled battery and load switching prototype
+
+In Progress
+
+Decentralized P2P energy-sharing control
+
+Droop-based inverter coordination
+
+Multi-node hardware validation
+
+V2G hardware implementation
+
+Industrial PLC/BMS integration
+
+Future Development
+
+The planned development path is:
+
+Refine the existing SOC-based control strategy
+
+Validate autonomous switching under different load and generationconditions
+
+Implement decentralized P2P energy-sharing logic
+
+Validate inverter droop coordination in simulation
+
+Expand the hardware prototype to multiple energy nodes
+
+Integrate bidirectional V2G hardware
+
+Implement industrial BMS and PLC-based local control
+
+Validate the complete autonomous hybrid microgrid experimentally
+
+Research Question
+
+Can multiple distributed energy resources coordinate energygeneration, storage, consumption and exchange through local SOC-awarecontrol and electrical coupling, while maintaining reliable operationwithout requiring centralized control for every energy transaction?
+
+Repository Structure
+
 /
 ├── README.md
+│
 ├── Simulink/
-│   ├── models/
-│   └── results/
-├── ESP32/
-│   ├── src/
-│   └── include/
+│   ├── Models/
+│   ├── Subsystems/
+│   └── Results/
+│
+├── Arduino/
+│   ├── Source/
+│   ├── Relay_Control/
+│   └── Prototype/
+│
 ├── Control/
-│   ├── MPPT/
 │   ├── SOC_Management/
+│   ├── MPPT/
 │   ├── Droop_Control/
 │   ├── P2P_Energy_Sharing/
 │   └── V2G/
+│
 ├── Hardware/
-│   ├── Schematics/
+│   ├── Circuit_Diagrams/
 │   ├── Wiring/
 │   └── BOM/
+│
 └── Documentation/
     ├── Architecture/
     ├── Test_Results/
-    └── Reports/
-```
+    └── Research/
 
-## Project Status
+Project Focus
 
-**Research / Prototype Development**
-
-### Existing
-
--   Detailed five-node Simulink/Simscape hybrid microgrid model
--   PV and wind generation modelling
--   Battery and SOC-based control
--   Consumer-side energy-management logic
--   EVCS/V2G modelling
--   Fault and protection infrastructure
--   Reduced-scale ESP32-based embedded-control work
-
-### Under Development
-
--   Decentralized droop-based P2P coordination
--   Three-node experimental validation
--   Five-node hardware implementation
--   Industrial PLC/BMS integration
--   V2G experimental validation
--   Critical-load hardware protection
-
-## Research Question
-
-> **Can local SOC-aware controllers and inverter-based electrical
-> coordination provide stable and reliable peer-to-peer energy sharing
-> in a multi-node hybrid microgrid without requiring a central
-> communication network for fundamental power coordination?**
-
-------------------------------------------------------------------------
-
-**Institution:** Chennai Institute of Technology\
-**Domain:** Electrical & Electronics Engineering\
-**Focus:** Hybrid Microgrids \| Smart Energy Management \| P2P Energy
-Sharing \| V2G \| Renewable Energy
+Hybrid Microgrids • Renewable Energy • Battery Energy Storage •SOC-Based Energy Management • Autonomous Switching • P2P Energy Sharing• Droop Control • V2G • Distributed Energy Resources
